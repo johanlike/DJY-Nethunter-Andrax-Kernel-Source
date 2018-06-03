@@ -23,7 +23,7 @@ MODULE_LICENSE("GPL");
 #define VIB_STRENGTH		20
 
 // 1=sweep right, 2=sweep left, 3=both
-static int s2s_switch = 2;
+static int s2s_switch = 0;
 static int s2s_y_limit = S2S_Y_LIMIT;
 static int touch_x = 0, touch_y = 0, firstx = 0;
 static bool touch_x_called = false, touch_y_called = false;
