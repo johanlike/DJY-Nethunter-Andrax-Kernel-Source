@@ -15,7 +15,7 @@
 
 #include <linux/cpu.h>
 #include <linux/cpufreq.h>
-#include <linux/fb.h>
+#include <linux/msm_drm_notify.h>
 #include <linux/input.h>
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
@@ -222,15 +222,15 @@ static int fb_notifier_cb(struct notifier_block *nb,
 	unsigned long action, void *data)
 {
 	struct boost_drv *b = container_of(nb, typeof(*b), fb_notif);
-	struct fb_event *evdata = data;
-	int *blank = evdata->data;
+	struct msm_drm_notifier *evdata = data;
+	int blank = *(int *)evdata->data;
 
 	/* Parse framebuffer blank events as soon as they occur */
-	if (action != FB_EARLY_EVENT_BLANK)
+	if (action != MSM_DRM_EARLY_EVENT_BLANK)
 		return NOTIFY_OK;
 
 	/* Boost when the screen turns on and unboost when it turns off */
-	if (*blank == FB_BLANK_UNBLANK) {
+	if (blank == MSM_DRM_BLANK_UNBLANK) {
 		set_boost_bit(b, SCREEN_AWAKE);
 		__cpu_input_boost_kick_max(b, CONFIG_WAKE_BOOST_DURATION_MS);
 	} else {
@@ -365,7 +365,7 @@ static int __init cpu_input_boost_init(void)
 
 	b->fb_notif.notifier_call = fb_notifier_cb;
 	b->fb_notif.priority = INT_MAX;
-	ret = fb_register_client(&b->fb_notif);
+	ret = msm_drm_register_client(&b->fb_notif);
 	if (ret) {
 		pr_err("Failed to register fb notifier, err: %d\n", ret);
 		goto unregister_handler;
