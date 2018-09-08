@@ -1577,11 +1577,14 @@ static void gesture_judge(struct synaptics_ts_data *ts)
 
 		//traditional s2w using userspace doubletap gesture from OnePlus (checks proximity sensor and vibrates)
 		} else if (DouTap_gesture) {
-			gesture_upload = DouTap;
+			gesture = DouTap;
 			input_report_key(ts->input_dev, keyCode, 1);
 			input_sync(ts->input_dev);
 			input_report_key(ts->input_dev, keyCode, 0);
 			input_sync(ts->input_dev);
+
+			if (haptic_feedback_disable)
+				qpnp_hap_ignore_next_request();
 
 		//traditional s2w if gestures not enabled in OnePlus settings (only turns on screen)
 		} else {
