@@ -41,7 +41,7 @@ struct boost_drv {
 	struct work_struct max_boost;
 	struct delayed_work max_unboost;
 	struct notifier_block cpu_notif;
-	struct notifier_block fb_notif;
+	struct notifier_block msm_drm_notif;
 	atomic64_t max_boost_expires;
 	atomic_t max_boost_dur;
 	atomic_t state;
@@ -218,19 +218,19 @@ static int cpu_notifier_cb(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
-static int fb_notifier_cb(struct notifier_block *nb,
-	unsigned long action, void *data)
+static int msm_drm_notifier_cb(struct notifier_block *nb,
+			  unsigned long action, void *data)
 {
-	struct boost_drv *b = container_of(nb, typeof(*b), fb_notif);
+	struct boost_drv *b = container_of(nb, typeof(*b), msm_drm_notif);
 	struct msm_drm_notifier *evdata = data;
-	int blank = *(int *)evdata->data;
+	int *blank = evdata->data;
 
 	/* Parse framebuffer blank events as soon as they occur */
 	if (action != MSM_DRM_EARLY_EVENT_BLANK)
 		return NOTIFY_OK;
 
 	/* Boost when the screen turns on and unboost when it turns off */
-	if (blank == MSM_DRM_BLANK_UNBLANK) {
+	if (*blank == MSM_DRM_BLANK_UNBLANK) {
 		set_boost_bit(b, SCREEN_AWAKE);
 		__cpu_input_boost_kick_max(b, CONFIG_WAKE_BOOST_DURATION_MS);
 	} else {
@@ -363,11 +363,11 @@ static int __init cpu_input_boost_init(void)
 		goto unregister_cpu_notif;
 	}
 
-	b->fb_notif.notifier_call = fb_notifier_cb;
-	b->fb_notif.priority = INT_MAX;
-	ret = msm_drm_register_client(&b->fb_notif);
+	b->msm_drm_notif.notifier_call = msm_drm_notifier_cb;
+	b->msm_drm_notif.priority = INT_MAX;
+	ret = msm_drm_register_client(&b->msm_drm_notif);
 	if (ret) {
-		pr_err("Failed to register fb notifier, err: %d\n", ret);
+		pr_err("Failed to register dsi_panel_notifier, err: %d\n", ret);
 		goto unregister_handler;
 	}
 
