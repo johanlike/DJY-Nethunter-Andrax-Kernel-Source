@@ -54,7 +54,8 @@ static DECLARE_WORK(sweep2sleep_presspwr_work, sweep2sleep_presspwr);
 
 /* PowerKey trigger */
 static void sweep2sleep_pwrtrigger(void) {
-	set_vibrate(vib_strength);
+	if (vib_strength > 0)
+		set_vibrate(vib_strength);
 	schedule_work(&sweep2sleep_presspwr_work);
         return;
 }
