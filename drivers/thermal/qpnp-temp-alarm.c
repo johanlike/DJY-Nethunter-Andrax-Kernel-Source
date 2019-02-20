@@ -347,7 +347,7 @@ static irqreturn_t qpnp_tm_isr(int irq, void *data)
 {
 	struct qpnp_tm_chip *chip = data;
 
-	schedule_delayed_work(&chip->irq_work,
+	queue_delayed_work(system_power_efficient_wq, &chip->irq_work,
 			msecs_to_jiffies(STATUS_REGISTER_DELAY_MS) + 1);
 
 	return IRQ_HANDLED;
