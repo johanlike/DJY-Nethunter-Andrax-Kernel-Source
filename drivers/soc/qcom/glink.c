@@ -5833,7 +5833,7 @@ static void glink_pm_qos_unvote(struct glink_core_xprt_ctx *xprt_ptr)
 	xprt_ptr->tx_path_activity = false;
 	if (xprt_ptr->qos_req_active) {
 		GLINK_PERF("%s: qos unvote\n", __func__);
-		schedule_delayed_work(&xprt_ptr->pm_qos_work,
+		queue_delayed_work(system_power_efficient_wq, &xprt_ptr->pm_qos_work,
 				msecs_to_jiffies(GLINK_PM_QOS_HOLDOFF_MS));
 	}
 }
