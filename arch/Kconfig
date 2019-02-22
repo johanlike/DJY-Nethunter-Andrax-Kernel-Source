@@ -547,6 +547,16 @@ config LTO_CLANG
 
 endchoice
 
+config LTO_CLANG_THIN
+	bool "Use clang ThinLTO in lieu of monolithic (EXPERIMENTAL)"
+	depends on LTO_CLANG
+	help
+	  This option enables ThinLTO, an alternative to monolithic LTO which is
+	  less resource-intensive resulting in significantly faster compilation
+	  while preserving many of the performance benefits associated with
+	  traditional LTO. This can be particularly useful for development and
+	  incremental builds.
+
 config CFI
 	bool
 
