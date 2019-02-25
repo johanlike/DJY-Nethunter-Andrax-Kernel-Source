@@ -222,10 +222,12 @@ static void do_input_boost(struct work_struct *work)
 		sched_boost_active = false;
 	}
 
+#ifdef CONFIG_DYNAMIC_STUNE_BOOST
 	if (stune_boost_active) {
 		reset_stune_boost("top-app", boost_slot);
 		stune_boost_active = false;
 	}
+#endif /* CONFIG_DYNAMIC_STUNE_BOOST */
 
 	/* Set the input_boost_min for all CPUs in the system */
 	pr_debug("Setting input boost min for all CPUs\n");
