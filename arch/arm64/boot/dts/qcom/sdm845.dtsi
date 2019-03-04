@@ -480,7 +480,7 @@
 	};
 
 	chosen {
-		bootargs = "rcupdate.rcu_expedited=1";
+		bootargs = "quiet rcupdate.rcu_expedited=1";
 	};
 
 	soc: soc { };
