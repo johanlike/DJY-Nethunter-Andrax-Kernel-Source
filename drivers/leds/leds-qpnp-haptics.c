@@ -666,7 +666,6 @@ static bool is_haptics_idle(struct hap_chip *chip)
 	}
 
 	if (i >= MAX_RETRIES && (val & HAP_BUSY_BIT)) {
-		pr_info("Haptics Busy after %d retries\n", i);
 		pr_debug("Haptics Busy after %d retries\n", i);
 		return false;
 	}
