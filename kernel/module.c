@@ -1246,7 +1246,7 @@ static struct module_attribute *modinfo_attrs[] = {
 
 static const char vermagic[] = VERMAGIC_STRING;
 
-static int try_to_force_load(struct module *mod, const char *reason)
+/*static int try_to_force_load(struct module *mod, const char *reason)
 {
 #ifdef CONFIG_MODULE_FORCE_LOAD
 	if (!test_taint(TAINT_FORCED_MODULE))
@@ -1256,7 +1256,7 @@ static int try_to_force_load(struct module *mod, const char *reason)
 #else
 	return -ENOEXEC;
 #endif
-}
+}*/
 
 #ifdef CONFIG_MODVERSIONS
 /* If the arch applies (non-zero) relocations to kernel kcrctab, unapply it. */
@@ -2990,12 +2990,14 @@ static int check_modinfo(struct module *mod, struct load_info *info, int flags)
 
 	if(!strncmp("wlan", mod->name, 4))
 		goto end;
+	else if(!strncmp("wc", mod->name, 4))
+		goto end;
 
 	if (flags & MODULE_INIT_IGNORE_VERMAGIC)
 		modmagic = NULL;
 
 	/* This is allowed: modprobe --force will invalidate it. */
-	if (!modmagic) {
+	/*if (!modmagic) {
 		err = try_to_force_load(mod, "bad vermagic");
 		if (err)
 			return err;
@@ -3003,7 +3005,7 @@ static int check_modinfo(struct module *mod, struct load_info *info, int flags)
 		pr_err("%s: version magic '%s' should be '%s'\n",
 		       mod->name, modmagic, vermagic);
 		return -ENOEXEC;
-	}
+	}*/
 
 end:
 	if (!get_modinfo(info, "intree")) {
