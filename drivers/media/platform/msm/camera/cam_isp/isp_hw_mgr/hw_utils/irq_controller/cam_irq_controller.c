@@ -298,8 +298,8 @@ int cam_irq_controller_subscribe_irq(void *irq_controller,
 	evt_handler->bottom_half              = bottom_half;
 	evt_handler->index                    = controller->hdl_idx++;
 
-    if (irq_bh_api)
-        evt_handler->irq_bh_api               = *irq_bh_api;
+	if (irq_bh_api)
+		evt_handler->irq_bh_api               = *irq_bh_api;
 
 	/* Avoid rollover to negative values */
 	if (controller->hdl_idx > 0x3FFFFFFF)

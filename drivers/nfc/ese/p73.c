@@ -569,7 +569,7 @@ static int p61_probe(struct spi_device *spi)
 {
     int ret = -1;
     struct p61_spi_platform_data *platform_data = NULL;
-    struct p61_spi_platform_data platform_data1;
+    struct p61_spi_platform_data platform_data1 = { 0 };
     struct p61_dev *p61_dev = NULL;
 
     P61_DBG_MSG("%s chip select : %d , bus number = %d \n",

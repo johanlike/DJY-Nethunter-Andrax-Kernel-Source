@@ -446,7 +446,7 @@ static int prepare_qmi_response(struct snd_usb_substream *subs,
 	struct usb_host_interface *alts;
 	struct usb_interface_descriptor *altsd;
 	struct usb_host_endpoint *ep;
-	struct uac_format_type_i_continuous_descriptor *fmt;
+	struct uac_format_type_i_continuous_descriptor *fmt = NULL;
 	struct uac_format_type_i_discrete_descriptor *fmt_v1;
 	struct uac_format_type_i_ext_descriptor *fmt_v2;
 	struct uac1_as_header_descriptor *as;
