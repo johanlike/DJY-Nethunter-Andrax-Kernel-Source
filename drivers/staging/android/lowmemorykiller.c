@@ -1096,7 +1096,7 @@ static unsigned long lowmem_batch_kill(
 						(long)(PAGE_SIZE / 1024),
 					global_node_page_state(NR_FILE_PAGES) *
 						(long)(PAGE_SIZE / 1024),
-					global_page_state(NR_SHMEM) *
+					global_node_page_state(NR_SHMEM) *
 						(long)(PAGE_SIZE / 1024),
 					total_swapcache_pages() *
 						(long)(PAGE_SIZE / 1024),
@@ -1455,7 +1455,7 @@ quick_select_fast:
 			(long)(PAGE_SIZE / 1024),
 			global_node_page_state(NR_FILE_PAGES) *
 			(long)(PAGE_SIZE / 1024),
-			global_page_state(NR_SHMEM) *
+			global_node_page_state(NR_SHMEM) *
 			(long)(PAGE_SIZE / 1024),
 			total_swapcache_pages() *
 			(long)(PAGE_SIZE / 1024),
