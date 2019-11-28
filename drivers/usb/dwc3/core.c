@@ -1285,11 +1285,20 @@ static int dwc3_probe(struct platform_device *pdev)
 					"snps,usb2-l1-disable");
 	dwc->normal_eps_in_gsi_mode = device_property_read_bool(dev,
 					"normal-eps-in-gsi-mode");
+/*yangfb@bsp,20180228,enable usb3.1*/
+	dwc->enable_super_speed = device_property_read_bool(dev,
+					"op,enable_super_speed");
 	if (dwc->enable_bus_suspend) {
 		pm_runtime_set_autosuspend_delay(dev, 500);
 		pm_runtime_use_autosuspend(dev);
 	}
 
+/* david.liu@bsp, 20171113 USB patches porting */
+	if (!dwc->enable_super_speed) {
+		pr_info("Force USB running as High speed");
+		dwc->max_hw_supp_speed = USB_SPEED_HIGH;
+		dwc->maximum_speed = USB_SPEED_HIGH;
+	}
 	dwc->lpm_nyet_threshold = lpm_nyet_threshold;
 	dwc->tx_de_emphasis = tx_de_emphasis;
 

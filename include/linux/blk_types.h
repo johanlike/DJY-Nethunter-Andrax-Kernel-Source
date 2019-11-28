@@ -188,6 +188,8 @@ enum rq_flag_bits {
 				   level) */
 
 	/* bio only flags */
+	/*dylanchang, 2019/4/30, add foreground task io opt*/
+	__REQ_FG,		/* foreground activity */
 	__REQ_RAHEAD,		/* read ahead, can fail anytime */
 	__REQ_THROTTLED,	/* This bio has already been subjected to
 				 * throttling rules. Don't do it again. */
@@ -226,6 +228,8 @@ enum rq_flag_bits {
 #define REQ_URGENT		(1ULL << __REQ_URGENT)
 #define REQ_NOIDLE		(1ULL << __REQ_NOIDLE)
 #define REQ_INTEGRITY		(1ULL << __REQ_INTEGRITY)
+/*dylanchang, 2019/4/30, add foreground task io opt*/
+#define REQ_FG			(1ULL << __REQ_FG)
 #define REQ_NOENCRYPT		(1ULL << __REQ_NOENCRYPT)
 
 #define REQ_FAILFAST_MASK \
