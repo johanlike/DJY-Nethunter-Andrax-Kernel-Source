@@ -716,7 +716,7 @@ static int _sde_connector_update_hbm(struct sde_connector *c_conn)
 				rc = dsi_panel_tx_cmd_set_op(dsi_display->panel, DSI_CMD_AOD_OFF_HBM_ON_SETTING);
 				aod_real_flag = true;
 			} else {
-				pr_err("DSI_CMD_SET_HBM_ON_5\n");
+				pr_debug("DSI_CMD_SET_HBM_ON_5\n");
 				rc = dsi_panel_tx_cmd_set_op(dsi_display->panel,
 						DSI_CMD_SET_HBM_ON_5);
 			}
@@ -745,7 +745,7 @@ static int _sde_connector_update_hbm(struct sde_connector *c_conn)
 				}
 			} else {
 				HBM_flag = false;
-				pr_info("DSI_CMD_SET_HBM_OFF\n");
+				pr_debug("DSI_CMD_SET_HBM_OFF\n");
 				rc = dsi_panel_tx_cmd_set_op(dsi_display->panel,
 						DSI_CMD_SET_HBM_OFF);
 				//oneplus_dim_status = 0;

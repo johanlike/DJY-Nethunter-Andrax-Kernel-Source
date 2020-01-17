@@ -2929,7 +2929,7 @@ ssize_t oneplus_display_notify_dim(struct device *dev,
 		pr_err("oneplus_display_notify_dim sscanf failed");
 
 	//dim_status = !!dim_status;
-	pr_info("notify dim %d\n", dim_status);
+	pr_debug("notify dim %d\n", dim_status);
 
 	if (display->panel->aod_status == 0 && (dim_status == 2)) {
 		pr_err("fp set it in normal status\n");
@@ -2958,7 +2958,7 @@ ssize_t oneplus_display_notify_dim(struct device *dev,
 
 	oneplus_dim_status = dim_status;
 	if (oneplus_dim_status == 1 && HBM_flag) {
-		pr_err("notify dim not commit");
+		pr_debug("notify dim not commit");
 		return count;
 	}
 	drm_modeset_lock_all(drm_dev);
@@ -2969,9 +2969,9 @@ ssize_t oneplus_display_notify_dim(struct device *dev,
 	crtc_state = drm_atomic_get_crtc_state(state, crtc);
 	if ((oneplus_dim_status != 0) && (oneplus_dim_status != 5)) {
 		err = drm_atomic_commit(state);
-		pr_info("oneplus_dim_status = %d, err = %d, dim_status = %d",
+		pr_debug("oneplus_dim_status = %d, err = %d, dim_status = %d",
 			oneplus_dim_status, err, dim_status);
-		pr_info("oneplus_onscreenfp_status %d hide %d",
+		pr_debug("oneplus_onscreenfp_status %d hide %d",
 			oneplus_onscreenfp_status, aod_layer_hide);
 		if (err < 0)
 			drm_atomic_state_free(state);

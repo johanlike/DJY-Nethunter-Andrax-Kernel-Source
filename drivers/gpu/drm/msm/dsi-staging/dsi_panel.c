@@ -709,7 +709,7 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	dsi = &panel->mipi_device;
 	/* add for fingerprint*/
 	if (panel->is_hbm_enabled) {
-		pr_err("OPEN HBM\n");
+		pr_debug("OPEN HBM\n");
 		return 0;
 	}
 	/*** DC Backlight config ***/
@@ -745,7 +745,7 @@ int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 	static bool first_bl_level = true;
 
 	if (first_bl_level || (bl_lvl == 0)) {
-        pr_err("---backlight level = %d---\n", bl_lvl);
+        pr_debug("---backlight level = %d---\n", bl_lvl);
         first_bl_level = (bl_lvl == 0)? true : false;
 	}
 
@@ -4440,12 +4440,12 @@ int dsi_panel_set_native_display_p3_mode(struct dsi_panel *panel, int level)
         count = mode->priv_info->cmd_sets[DSI_CMD_SET_NATIVE_DISPLAY_P3_ON].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_ON);
-            pr_err("Native Display p3 Mode On.\n");    
+            pr_debug("Native Display p3 Mode On.\n");    
     } else {
         count = mode->priv_info->cmd_sets[DSI_CMD_SET_NATIVE_DISPLAY_P3_OFF].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_P3_OFF);
-            pr_err("Native Display p3 Mode Off.\n");
+            pr_debug("Native Display p3 Mode Off.\n");
     }
 	mutex_unlock(&panel->panel_lock);
 return rc;
@@ -4468,12 +4468,12 @@ int dsi_panel_set_native_display_wide_color_mode(struct dsi_panel *panel, int le
         count = mode->priv_info->cmd_sets[DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_ON);
-            pr_err("Native wide color Mode On.\n");    
+            pr_debug("Native wide color Mode On.\n");    
     } else {
         count = mode->priv_info->cmd_sets[DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_OFF].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_WIDE_COLOR_OFF);
-            pr_err("Native wide color Mode Off.\n");
+            pr_debug("Native wide color Mode Off.\n");
     }
 	mutex_unlock(&panel->panel_lock);
 return rc;
@@ -4496,12 +4496,12 @@ int dsi_panel_set_native_display_srgb_color_mode(struct dsi_panel *panel, int le
         count = mode->priv_info->cmd_sets[DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_ON);
-            pr_err("Native srgb color Mode On.\n");    
+            pr_debug("Native srgb color Mode On.\n");    
     } else {
         count = mode->priv_info->cmd_sets[DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_OFF].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_NATIVE_DISPLAY_SRGB_COLOR_OFF);
-            pr_err("Native  srgb color Mode Off.\n");
+            pr_debug("Native  srgb color Mode Off.\n");
     }
 	mutex_unlock(&panel->panel_lock);
 return rc;
@@ -4524,12 +4524,12 @@ int dsi_panel_set_customer_srgb_mode(struct dsi_panel *panel, int level)
         count = mode->priv_info->cmd_sets[DSI_CMD_LOADING_CUSTOMER_RGB_ON].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_ON);
-            pr_err("turn on customer srgb\n");    
+            pr_debug("turn on customer srgb\n");    
     } else {
         count = mode->priv_info->cmd_sets[DSI_CMD_LOADING_CUSTOMER_RGB_OFF].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_RGB_OFF);
-            pr_err("turn off customer srgb\n");
+            pr_debug("turn off customer srgb\n");
     }
 	mutex_unlock(&panel->panel_lock);
 return rc;
@@ -4552,12 +4552,12 @@ int dsi_panel_set_customer_p3_mode(struct dsi_panel *panel, int level)
         count = mode->priv_info->cmd_sets[DSI_CMD_LOADING_CUSTOMER_P3_ON].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_ON);
-            pr_err("turn on customer P3\n");    
+            pr_debug("turn on customer P3\n");    
     } else {
         count = mode->priv_info->cmd_sets[DSI_CMD_LOADING_CUSTOMER_P3_OFF].count;
 
             rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_LOADING_CUSTOMER_P3_OFF);
-            pr_err("turn off customer P3\n");
+            pr_debug("turn off customer P3\n");
     }
 	mutex_unlock(&panel->panel_lock);
 return rc;
@@ -4583,32 +4583,32 @@ int dsi_panel_set_aod_mode(struct dsi_panel *panel, int level)
 	mode = panel->cur_mode;
 	if (level == 1) {
 		if (panel->aod_status == 0) {
-			pr_info("send AOD ON commd mode 1 start\n");
+			pr_debug("send AOD ON commd mode 1 start\n");
 			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_AOD_ON_1);
-			pr_info("send AOD ON commd mode 1 end\n");
+			pr_debug("send AOD ON commd mode 1 end\n");
 			panel->aod_status = 1;
 		}
 	} else if (level == 2) {
 		if (panel->aod_status == 0) {
 			panel->aod_status = 1;
-			pr_info("send AOD ON commd mode 2 start\n");
+			pr_debug("send AOD ON commd mode 2 start\n");
 			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_AOD_ON_2);
 			aod_real_flag = false;
 			aod_complete = true;
-			pr_info("send AOD ON commd mode 2 end\n");
+			pr_debug("send AOD ON commd mode 2 end\n");
 
 		}
 	} else {
 		if (panel->aod_status) {
 			panel->aod_status = 0;
-			pr_info("send AOD OFF commd start\n");
+			pr_debug("send AOD OFF commd start\n");
 			if (aod_real_flag == true) {
-				pr_info("send DSI_CMD_SET_AOD_OFF\n");
+				pr_debug("send DSI_CMD_SET_AOD_OFF\n");
 				rc = dsi_panel_tx_cmd_set(panel,
 							DSI_CMD_SET_AOD_OFF);
 			}
 			if (aod_real_flag == false) {
-				pr_info("send DSI_CMD_SET_AOD_OFF_NEW\n");
+				pr_debug("send DSI_CMD_SET_AOD_OFF_NEW\n");
 				rc = dsi_panel_tx_cmd_set(panel,
 						DSI_CMD_SET_AOD_OFF_NEW);
 				/*
@@ -4632,7 +4632,7 @@ int dsi_panel_set_aod_mode(struct dsi_panel *panel, int level)
 				rc = dsi_panel_update_backlight(panel,
 						panel->bl_config.bl_level);
 			}
-			pr_info("send AOD OFF commd end\n");
+			pr_debug("send AOD OFF commd end\n");
 			aod_complete = false;
 		}
 	}
