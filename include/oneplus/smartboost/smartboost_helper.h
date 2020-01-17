@@ -17,7 +17,15 @@ struct smb_cb_set {
 				struct lruvec *lruvec, enum lru_list lru);
 };
 
+#ifdef CONFIG_ANDROID_LOW_MEMORY_KILLER
 extern unsigned long get_max_minfree(void);
+#else
+static inline unsigned long get_max_minfree(void)
+{
+// return stock max minfree value directly when Android LMK is disabled
+	return 200640;
+}
+#endif
 extern unsigned long coretech_reclaim_pagelist(struct list_head *page_list,
 		struct vm_area_struct *vma, void *sc);
 void smb_register_cb_set(struct smb_cb_set *set);
