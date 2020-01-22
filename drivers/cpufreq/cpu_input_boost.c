@@ -19,6 +19,7 @@
 #include <linux/input.h>
 #include <linux/moduleparam.h>
 #include <linux/slab.h>
+#include <linux/devfreq_boost.h>
 
 static unsigned int input_boost_freq_lp = CONFIG_INPUT_BOOST_FREQ_LP;
 static unsigned int input_boost_freq_hp = CONFIG_INPUT_BOOST_FREQ_PERF;
@@ -157,10 +158,13 @@ static void input_boost_worker(struct work_struct *work)
 		update_online_cpu_policy();
 	}
 
+	devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 500);
+
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 	if (!do_stune_boost("top-app", dynamic_stune_boost, &boost_slot))
 		stune_boost_active = true;
 #endif
+
 	queue_delayed_work(b->wq, &b->input_unboost,
 		msecs_to_jiffies(input_boost_duration));
 }
