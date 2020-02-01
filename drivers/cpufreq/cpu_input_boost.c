@@ -52,7 +52,7 @@ struct boost_drv {
 	struct delayed_work max_unboost;
 	struct notifier_block cpu_notif;
 	struct notifier_block msm_drm_notif;
-	unsigned long max_boost_expires;
+	atomic64_t max_boost_expires;
 	atomic_t max_boost_dur;
 	atomic_t state;
 };
