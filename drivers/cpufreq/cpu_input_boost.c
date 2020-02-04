@@ -23,12 +23,14 @@
 static unsigned int input_boost_freq_lp = CONFIG_INPUT_BOOST_FREQ_LP;
 static unsigned int input_boost_freq_hp = CONFIG_INPUT_BOOST_FREQ_PERF;
 static unsigned short input_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
+static unsigned short dynamic_stune_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
 
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 static bool stune_boost_active;
 static int boost_slot;
 static unsigned short dynamic_stune_boost;
 module_param(dynamic_stune_boost, short, 0644);
+module_param(dynamic_stune_boost_duration, short, 0644);
 #endif
 
 module_param(input_boost_freq_lp, uint, 0644);
@@ -45,6 +47,7 @@ struct boost_drv {
 	struct workqueue_struct *wq;
 	struct work_struct input_boost;
 	struct delayed_work input_unboost;
+	struct delayed_work dynamic_stune_unboost;
 	struct work_struct max_boost;
 	struct delayed_work max_unboost;
 	struct notifier_block cpu_notif;
@@ -162,6 +165,11 @@ static void input_boost_worker(struct work_struct *work)
 #endif
 	queue_delayed_work(b->wq, &b->input_unboost,
 		msecs_to_jiffies(input_boost_duration));
+
+#ifdef CONFIG_DYNAMIC_STUNE_BOOST
+	queue_delayed_work(b->wq, &b->dynamic_stune_unboost,
+		msecs_to_jiffies(dynamic_stune_boost_duration));
+#endif
 }
 
 static void input_unboost_worker(struct work_struct *work)
@@ -171,14 +179,18 @@ static void input_unboost_worker(struct work_struct *work)
 
 	clear_boost_bit(b, INPUT_BOOST);
 
+	update_online_cpu_policy();
+}
+
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
+static void dynamic_stune_unboost_worker(struct work_struct *work)
+{
 	if (stune_boost_active) {
 		reset_stune_boost("top-app", boost_slot);
 		stune_boost_active = false;
 	}
-#endif
-	update_online_cpu_policy();
 }
+#endif
 
 static void max_boost_worker(struct work_struct *work)
 {
@@ -379,6 +391,7 @@ static int __init cpu_input_boost_init(void)
 	atomic64_set(&b->max_boost_expires, 0);
 	INIT_WORK(&b->input_boost, input_boost_worker);
 	INIT_DELAYED_WORK(&b->input_unboost, input_unboost_worker);
+	INIT_DELAYED_WORK(&b->dynamic_stune_unboost, dynamic_stune_unboost_worker);
 	INIT_WORK(&b->max_boost, max_boost_worker);
 	INIT_DELAYED_WORK(&b->max_unboost, max_unboost_worker);
 	atomic_set(&b->state, SCREEN_AWAKE);
