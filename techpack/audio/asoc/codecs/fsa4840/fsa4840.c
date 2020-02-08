@@ -490,7 +490,7 @@ static int fsa4480_i2c_probe(struct i2c_client *i2c,
 	/* liuhaituo@MM.Audio 2018/8/8 Solve not detected the headset after restarting the phone
 	 * after plugging in the headset*/
 	INIT_DELAYED_WORK(&fsa4480->call_wcd_dwork, call_wcd_detect_headset);
-	schedule_delayed_work(&fsa4480->call_wcd_dwork, msecs_to_jiffies(8000));
+	queue_delayed_work(system_power_efficient_wq, &fsa4480->call_wcd_dwork, msecs_to_jiffies(8000));
 	return 0;
 }
 
