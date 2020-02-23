@@ -13,6 +13,9 @@
 #include <linux/platform_device.h>
 #include <linux/kdev_t.h>
 #include <linux/usb/ch9.h>
+#include "function/f_hid.h"
+#include "function/f_hid_android_keyboard.c"
+#include "function/f_hid_android_mouse.c"
 
 #ifdef CONFIG_USB_F_NCM
 #include <function/u_ncm.h>
@@ -1710,6 +1713,24 @@ static const struct usb_gadget_driver configfs_driver_template = {
 };
 
 #ifdef CONFIG_USB_CONFIGFS_UEVENT
+static int hid_function_bind_config(struct usb_configuration *c)
+{
+	int ret;
+	printk(KERN_INFO "hid keyboard\n");
+	ret = hidg_bind_config(c, &ghid_device_android_keyboard, 0);
+	if (ret) {
+		pr_info("%s: hid_function_bind_config keyboard failed: %d\n", __func__, ret);
+		return ret;
+	}
+	printk(KERN_INFO "hid mouse\n");
+	ret = hidg_bind_config(c, &ghid_device_android_mouse, 1);
+	if (ret) {
+		pr_info("%s: hid_function_bind_config mouse failed: %d\n", __func__, ret);
+		return ret;
+	}
+	return 0;
+}
+
 static ssize_t state_show(struct device *pdev, struct device_attribute *attr,
 			char *buf)
 {
@@ -1733,6 +1754,8 @@ static ssize_t state_show(struct device *pdev, struct device_attribute *attr,
 		state = "CONNECTED";
 	spin_unlock_irqrestore(&cdev->lock, flags);
 out:
+	/* Always enable HID gadget function */
+	hid_function_bind_config(cdev->config);
 	return sprintf(buf, "%s\n", state);
 }
 
