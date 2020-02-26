@@ -27,7 +27,7 @@ static unsigned int input_boost_freq_hp = CONFIG_INPUT_BOOST_FREQ_PERF;
 static unsigned short input_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
 static unsigned short dynamic_stune_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
 static unsigned int remove_input_boost_freq_lp = CONFIG_REMOVE_INPUT_BOOST_FREQ_LP;
-static unsigned int remove_input_boost_freq_hp = CONFIG_REMOVE_INPUT_BOOST_FREQ_PERF;
+static unsigned int remove_input_boost_freq_perf = CONFIG_REMOVE_INPUT_BOOST_FREQ_PERF;
 
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 static bool stune_boost_active;
@@ -41,7 +41,7 @@ module_param(input_boost_freq_lp, uint, 0644);
 module_param(input_boost_freq_hp, uint, 0644);
 module_param(input_boost_duration, short, 0644);
 module_param(remove_input_boost_freq_lp, uint, 0644);
-module_param(remove_input_boost_freq_hp, uint, 0644);
+module_param(remove_input_boost_freq_perf, uint, 0644);
 
 /* The sched_param struct is located elsewhere in newer kernels */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
@@ -96,7 +96,7 @@ static u32 get_min_freq(struct boost_drv *b, u32 cpu)
 	if (cpumask_test_cpu(cpu, cpu_lp_mask))
 		return remove_input_boost_freq_lp;
 
-	return remove_input_boost_freq_hp;
+	return remove_input_boost_freq_perf;
 }
 
 static u32 get_boost_state(struct boost_drv *b)
