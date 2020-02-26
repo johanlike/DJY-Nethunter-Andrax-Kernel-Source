@@ -94,9 +94,9 @@ static u32 get_max_boost_freq(struct cpufreq_policy *policy)
 static u32 get_min_freq(struct boost_drv *b, u32 cpu)
 {
 	if (cpumask_test_cpu(cpu, cpu_lp_mask))
-		return CONFIG_REMOVE_INPUT_BOOST_FREQ_LP;
+		return remove_input_boost_freq_lp;
 
-	return CONFIG_REMOVE_INPUT_BOOST_FREQ_PERF;
+	return remove_input_boost_freq_hp;
 }
 
 static u32 get_boost_state(struct boost_drv *b)
@@ -118,10 +118,12 @@ static void update_online_cpu_policy(void)
 {
 	u32 cpu;
 
-	/* Trigger cpufreq notifier for online CPUs */
+	/* Only one CPU from each cluster needs to be updated */
 	get_online_cpus();
-	for_each_online_cpu(cpu)
-		cpufreq_update_policy(cpu);
+	cpu = cpumask_first_and(cpu_lp_mask, cpu_online_mask);
+	cpufreq_update_policy(cpu);
+	cpu = cpumask_first_and(cpu_perf_mask, cpu_online_mask);
+	cpufreq_update_policy(cpu);
 	put_online_cpus();
 }
 
@@ -191,7 +193,6 @@ static void input_unboost_worker(struct work_struct *work)
 		container_of(to_delayed_work(work), typeof(*b), input_unboost);
 
 	clear_boost_bit(b, INPUT_BOOST);
-
 	wake_up(&b->boost_waitq);
 }
 
@@ -283,7 +284,7 @@ static int cpu_notifier_cb(struct notifier_block *nb,
 	 * Boost to policy->max if the boost frequency is higher. When
 	 * unboosting, set policy->min to the absolute min freq for the CPU.
 	 */
-	if (state & INPUT_BOOST) 
+	if (state & INPUT_BOOST)
 		policy->min = get_input_boost_freq(policy);
 	else {
 		min_freq = get_min_freq(b, policy->cpu);
