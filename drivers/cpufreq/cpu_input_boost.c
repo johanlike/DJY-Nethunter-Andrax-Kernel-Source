@@ -28,6 +28,8 @@ static unsigned short input_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
 static unsigned short dynamic_stune_boost_duration = CONFIG_INPUT_BOOST_DURATION_MS;
 static unsigned int remove_input_boost_freq_lp = CONFIG_REMOVE_INPUT_BOOST_FREQ_LP;
 static unsigned int remove_input_boost_freq_perf = CONFIG_REMOVE_INPUT_BOOST_FREQ_PERF;
+static unsigned int previous_remove_input_boost_freq_lp = CONFIG_REMOVE_INPUT_BOOST_FREQ_LP;
+static unsigned int previous_remove_input_boost_freq_perf = CONFIG_REMOVE_INPUT_BOOST_FREQ_PERF;
 
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
 static bool stune_boost_active;
@@ -309,9 +311,15 @@ static int msm_drm_notifier_cb(struct notifier_block *nb,
 	if (*blank == MSM_DRM_BLANK_UNBLANK) {
 		clear_boost_bit(b, SCREEN_OFF);
 		__cpu_input_boost_kick_max(b, CONFIG_WAKE_BOOST_DURATION_MS);
+		remove_input_boost_freq_lp = previous_remove_input_boost_freq_lp;
+		remove_input_boost_freq_perf = previous_remove_input_boost_freq_perf;
 	} else {
 		set_boost_bit(b, SCREEN_OFF);
 		wake_up(&b->boost_waitq);
+		previous_remove_input_boost_freq_lp = remove_input_boost_freq_lp;
+		previous_remove_input_boost_freq_perf = remove_input_boost_freq_perf;
+		remove_input_boost_freq_lp = CONFIG_REMOVE_INPUT_BOOST_FREQ_LP;
+		remove_input_boost_freq_perf = CONFIG_REMOVE_INPUT_BOOST_FREQ_PERF;
 	}
 
 	return NOTIFY_OK;
