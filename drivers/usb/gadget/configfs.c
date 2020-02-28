@@ -1736,6 +1736,7 @@ static ssize_t state_show(struct device *pdev, struct device_attribute *attr,
 {
 	struct gadget_info *dev = dev_get_drvdata(pdev);
 	struct usb_composite_dev *cdev;
+	struct usb_configuration *c;
 	char *state = "DISCONNECTED";
 	unsigned long flags;
 
@@ -1753,9 +1754,17 @@ static ssize_t state_show(struct device *pdev, struct device_attribute *attr,
 	else if (dev->connected)
 		state = "CONNECTED";
 	spin_unlock_irqrestore(&cdev->lock, flags);
+
+	mutex_lock(&dev->lock);
+	list_for_each_entry(c, &cdev->configs, list) {
+		if (c) {
+			/* Always enable HID gadget function */
+			hid_function_bind_config(c);
+			break;
+		}
+	}
+	mutex_unlock(&dev->lock);
 out:
-	/* Always enable HID gadget function */
-	hid_function_bind_config(cdev->config);
 	return sprintf(buf, "%s\n", state);
 }
 
