@@ -1056,12 +1056,14 @@ static struct usb_function_instance *hidg_alloc_inst(void)
 			opts->report_length = ghid_device_android_keyboard.report_length;
 			opts->report_desc_length = ghid_device_android_keyboard.report_desc_length;
 			opts->report_desc = ghid_device_android_keyboard.report_desc;
+			break;
 		case 1:
 			opts->subclass = ghid_device_android_mouse.subclass;
 			opts->protocol = ghid_device_android_mouse.protocol;
 			opts->report_length = ghid_device_android_mouse.report_length;
 			opts->report_desc_length = ghid_device_android_mouse.report_desc_length;
 			opts->report_desc = ghid_device_android_mouse.report_desc;
+			break;
 		}
 	}
 	config_group_init_type_name(&opts->func_inst.group, "", &hid_func_type);
