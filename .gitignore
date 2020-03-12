@@ -119,4 +119,4 @@ all.config
 # fetched Android config fragments
 kernel/configs/android-*.cfg
 
-drivers/oneplus
+out/
