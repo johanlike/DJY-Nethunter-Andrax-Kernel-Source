@@ -1975,7 +1975,7 @@ static int msm_lsm_open(struct snd_pcm_substream *substream)
 	ret = snd_pcm_hw_constraint_integer(runtime,
 			    SNDRV_PCM_HW_PARAM_PERIODS);
 	if (ret < 0)
-		pr_info("%s: snd_pcm_hw_constraint_integer failed ret %d\n",
+		pr_debug("%s: snd_pcm_hw_constraint_integer failed ret %d\n",
 			__func__, ret);
 
 	ret = snd_pcm_hw_constraint_minmax(runtime,
