@@ -656,9 +656,11 @@ export CFLAGS_GCOV CFLAGS_KCOV
 ifdef CONFIG_LD_GOLD
 LDFINAL_vmlinux := $(LD)
 LD		:= $(LDGOLD)
+KBUILD_LDFLAGS += -O3
 endif
 ifdef CONFIG_LD_LLD
 LD		:= $(LDLLD)
+KBUILD_LDFLAGS += -O3
 endif
 
 ifdef CONFIG_LTO_CLANG
