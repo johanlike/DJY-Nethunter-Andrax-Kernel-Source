@@ -151,7 +151,6 @@ config DRM_SDE_RSC
 
 config KLAPSE
     bool CONFIG_KLAPSE
-    depends on DRM_MSM
     default n
     help
         A simple rgb dynamic lapsing module similar to LineageOS' livedisplay
