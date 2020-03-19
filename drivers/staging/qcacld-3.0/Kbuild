@@ -1827,7 +1827,6 @@ ccflags-y += $(INCS)
 cppflags-y +=	-DANI_OS_TYPE_ANDROID=6 \
 		-Wall\
 		-Werror\
-		-Wno-void-pointer-to-int-cast \
 		-D__linux__
 
 cppflags-$(CONFIG_PTT_SOCK_SVC_ENABLE) += -DPTT_SOCK_SVC_ENABLE
