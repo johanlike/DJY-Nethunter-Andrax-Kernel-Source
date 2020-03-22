@@ -11,7 +11,7 @@ typedef     __u8        uint8;
 #include <linux/string.h>
 #include <linux/kallsyms.h>
 //extern uint32_t chip_serial_num;
-extern unsigned long totalram_pages __read_mostly;
+extern unsigned long totalram_pages;
 
 struct project_info {
     char project_name[8];  //eg, 16859
