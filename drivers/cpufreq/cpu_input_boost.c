@@ -422,7 +422,7 @@ static int __init cpu_input_boost_init(void)
 		return -ENOMEM;
 
 	INIT_DELAYED_WORK(&b->input_unboost, input_unboost_worker);
-	INIT_DELAYED_WORK(&b->dynamic_stune_unboost, dynamic_stune_unboost_worker);
+	INIT_DELAYED_WORK(&b->dynamic_stune_unboost, dynamic_stune_boost_duration);
 	INIT_DELAYED_WORK(&b->max_unboost, max_unboost_worker);
 	init_waitqueue_head(&b->boost_waitq);
 	atomic64_set(&b->max_boost_expires, 0);
