@@ -1024,6 +1024,16 @@ out:
 #define COMPAT_CANNOT_USE_MAX_MTU
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 29) || (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 5, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 14))
+#include <linux/skbuff.h>
+static inline void skb_reset_redirect(struct sk_buff *skb)
+{
+#ifdef CONFIG_NET_SCHED
+	skb_reset_tc(skb);
+#endif
+}
+#endif
+
 #if defined(ISUBUNTU1604)
 #include <linux/siphash.h>
 #ifndef _WG_LINUX_SIPHASH_H
