@@ -37,11 +37,6 @@
 #include "walt.h"
 #include <trace/events/sched.h>
 
-/* Curtis, 20180111, ux realm*/
-#include <../drivers/oneplus/coretech/uxcore/opchain_helper.h>
-
-#define opc_claim_bit_test(claim, cpu) (claim & ((1 << cpu) | (1 << (cpu + num_present_cpus()))))
-
 #ifdef CONFIG_SCHED_WALT
 
 static inline bool task_fits_max(struct task_struct *p, int cpu);
@@ -5009,9 +5004,6 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 	int task_new = flags & ENQUEUE_WAKEUP_NEW;
 #endif
 
-/* Curtis, 20180111, ux realm*/
-	opc_task_switch(true, cpu_of(rq), p, 0);
-
 #ifdef CONFIG_SCHED_WALT
 	p->misfit = !task_fits_max(p, rq->cpu);
 #endif
@@ -5106,8 +5098,6 @@ static void dequeue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 	struct sched_entity *se = &p->se;
 	int task_sleep = flags & DEQUEUE_SLEEP;
 
-	/* Curtis, 20180111, ux realm*/
-	opc_task_switch(false, cpu_of(rq), p, rq->clock);
 	for_each_sched_entity(se) {
 		cfs_rq = cfs_rq_of(se);
 		dequeue_entity(cfs_rq, se, flags);
@@ -6978,8 +6968,6 @@ struct find_best_target_env {
 	bool need_idle;
 	int placement_boost;
 	bool avoid_prev_cpu;
-	/* Curtis, 20180111, ux realm*/
-	int op_path;
 };
 
 #ifdef CONFIG_SCHED_WALT
@@ -7142,9 +7130,7 @@ retry:
 			 * so prev_cpu will receive a negative bias due to the double
 			 * accounting. However, the blocked utilization may be zero.
 			 */
-			/* Curtis, 20180111, ux realm*/
-			wake_util = opc_cpu_util(cpu_util_wake(i, p),
-						i, p, fbt_env->op_path);
+			wake_util = cpu_util_wake(i, p);
 			new_util = wake_util + task_util(p);
 			spare_cap = capacity_orig_of(i) - wake_util;
 
@@ -7590,13 +7576,6 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 	struct find_best_target_env fbt_env;
 	u64 start_t = 0;
 	int fastpath = 0;
-	/* Curtis, 20180111, ux realm*/
-	bool is_uxtop = is_opc_task(p, UT_FORE);
-
-	fbt_env.op_path = opc_select_path(current, p, prev_cpu);
-
-	if (fbt_env.op_path >= 0)
-		prev_cpu = fbt_env.op_path;
 
 	if (trace_sched_task_util_enabled())
 		start_t = sched_clock();
@@ -7607,8 +7586,6 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 #ifdef CONFIG_CGROUP_SCHEDTUNE
 	boosted = schedtune_task_boost(p) > 0;
 	prefer_idle = schedtune_prefer_idle(p) > 0;
-	/* Curtis, 20180111, ux realm*/
-	boosted |= (fbt_env.op_path >= 4);
 #else
 	boosted = get_sysctl_sched_cfs_boost() > 0;
 	prefer_idle = 0;
@@ -7630,9 +7607,8 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 
 	if (sysctl_sched_sync_hint_enable && sync) {
 		int cpu = smp_processor_id();
-		/* Curtis, 20180111, ux realm*/
-		if (bias_to_waker_cpu(p, cpu, rtg_target) &&
-			(!is_uxtop || cpu >= FIRST_BIG_CORE)) {
+
+		if (bias_to_waker_cpu(p, cpu, rtg_target)) {
 			schedstat_inc(p->se.statistics.nr_wakeups_secb_sync);
 			schedstat_inc(this_rq()->eas_stats.secb_sync);
 			target_cpu = cpu;
@@ -7647,12 +7623,7 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 		goto out;
 	}
 
-	/* Curtis, 20180111, ux realm*/
-	if (fbt_env.op_path >= 0)
-		sd = rcu_dereference(per_cpu(sd_ea, fbt_env.op_path));
-	else
 	sd = rcu_dereference(per_cpu(sd_ea, prev_cpu));
-
 	if (!sd) {
 		target_cpu = prev_cpu;
 		goto out;
@@ -7739,7 +7710,7 @@ out:
 	trace_sched_task_util(p, next_cpu, backup_cpu, target_cpu, sync,
 			      fbt_env.need_idle, fastpath,
 			      fbt_env.placement_boost, rtg_target ?
-			      cpumask_first(rtg_target) : -1, start_t, boosted);
+			      cpumask_first(rtg_target) : -1, start_t);
 	return target_cpu;
 }
 
@@ -8382,8 +8353,6 @@ enum group_type {
 #define LBF_IGNORE_BIG_TASKS 0x100
 #define LBF_IGNORE_PREFERRED_CLUSTER_TASKS 0x200
 #define LBF_MOVED_RELATED_THREAD_GROUP_TASK 0x400
-#define LBF_IGNORE_UX_TOP 0x800
-#define LBF_IGNORE_SLAVE 0xC00
 
 struct lb_env {
 	struct sched_domain	*sd;
@@ -8581,13 +8550,6 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
 		return 0;
 #endif
 
-	/* Curtis, 20180111, ux realm*/
-	if (env->flags & LBF_IGNORE_UX_TOP && is_opc_task(p, UT_FORE))
-		return 0;
-
-	if (env->flags & LBF_IGNORE_SLAVE && p->utask_slave)
-		return 0;
-
 	if (task_running(env->src_rq, p)) {
 		schedstat_inc(p->se.statistics.nr_failed_migrations_running);
 		return 0;
@@ -8678,8 +8640,6 @@ static int detach_tasks(struct lb_env *env)
 	unsigned long load;
 	int detached = 0;
 	int orig_loop = env->loop;
-	/* Curtis, 20180111, ux realm*/
-	int src_claim = opc_get_claim_on_cpu(env->src_cpu);
 	lockdep_assert_held(&env->src_rq->lock);
 
 	if (env->imbalance <= 0)
@@ -8687,14 +8647,8 @@ static int detach_tasks(struct lb_env *env)
 
 	if (!same_cluster(env->dst_cpu, env->src_cpu))
 		env->flags |= LBF_IGNORE_PREFERRED_CLUSTER_TASKS;
-	/* Curtis, 20180111, ux realm*/
-	if (cpu_capacity(env->dst_cpu) < cpu_capacity(env->src_cpu)) {
+	if (cpu_capacity(env->dst_cpu) < cpu_capacity(env->src_cpu))
 		env->flags |= LBF_IGNORE_BIG_TASKS;
-		if (src_claim == 1)
-			env->flags |= LBF_IGNORE_UX_TOP | LBF_IGNORE_SLAVE;
-		else if (src_claim == -1)
-			env->flags |= LBF_IGNORE_SLAVE;
-	}
 
 redo:
 	while (!list_empty(tasks)) {
@@ -8773,8 +8727,6 @@ next:
 		tasks = &env->src_rq->cfs_tasks;
 		env->flags &= ~(LBF_IGNORE_BIG_TASKS |
 				LBF_IGNORE_PREFERRED_CLUSTER_TASKS);
-		if (env->flags & LBF_IGNORE_SLAVE)
-			env->flags &= ~LBF_IGNORE_SLAVE;
 
 		env->loop = orig_loop;
 		goto redo;
@@ -10417,18 +10369,6 @@ no_move:
 				goto out;
 			}
 
-			/*
-			 * The CPUs are marked as reserved if tasks
-			 * are pushed/pulled from other CPUs. In that case,
-			 * bail out from the load balancer.
-			 */
-			if (is_reserved(this_cpu) ||
-			    is_reserved(cpu_of(busiest))) {
-				raw_spin_unlock_irqrestore(&busiest->lock,
-							   flags);
-				*continue_balancing = 0;
-				goto out;
-			}
 
 			/* don't kick the active_load_balance_cpu_stop,
 			 * if the curr task on busiest cpu can't be
