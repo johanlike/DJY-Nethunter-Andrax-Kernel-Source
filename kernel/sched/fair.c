@@ -7518,17 +7518,6 @@ static inline int wake_to_idle(struct task_struct *p)
 		 (p->flags & PF_WAKE_UP_IDLE);
 }
 
-static inline bool
-bias_to_waker_cpu(struct task_struct *p, int cpu, struct cpumask *rtg_target)
-{
-	int rtg_target_cpu = rtg_target ? cpumask_first(rtg_target) : cpu;
-
-	return cpumask_test_cpu(cpu, tsk_cpus_allowed(p)) &&
-	       cpu_active(cpu) && !cpu_isolated(cpu) &&
-	       capacity_orig_of(cpu) >= capacity_orig_of(rtg_target_cpu) &&
-	       task_fits_max(p, cpu);
-}
-
 /*
  * Check whether cpu is in the fastest set of cpu's that p should run on.
  * If p is boosted, prefer that p runs on a faster cpu; otherwise, allow p
