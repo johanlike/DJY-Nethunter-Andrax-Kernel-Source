@@ -1247,6 +1247,7 @@ endchoice
 config BUILD_ARM64_DT_OVERLAY
 	bool "enable DT overlay compilation support"
 	depends on OF
+	default y
 	help
 	  This option enables support for DT overlay compilation.
 endmenu
